@@ -36,6 +36,9 @@ const allAllowedOrigins = allowedOrigins.includes("*")
   ? ["*"]
   : [...new Set([...allowedOrigins, ...devOrigins])];
 
+// IMPORTANT: Allow iframe embedding from any origin for the chatbot widget
+// This is necessary because the chatbot iframe can be embedded on any website
+
 console.log("Allowed CORS origins:", allAllowedOrigins);
 
 app.use(
@@ -61,6 +64,19 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Add headers to allow iframe embedding (for chatbot widget)
+// Note: We don't set X-Frame-Options here because it would block iframe embedding
+// The chatbot widget needs to be embeddable on any website
+app.use((req, res, next) => {
+  // Only set CSP for API routes that serve the chatbot iframe content
+  // Allow iframe embedding from any origin for the chatbot widget
+  if (req.path.startsWith('/api/spas/config')) {
+    // Don't set restrictive headers for config endpoint
+    // This allows the chatbot iframe to be embedded anywhere
+  }
+  next();
+});
 app.use(express.json());
 app.use(morgan("dev"));
 

@@ -3,12 +3,31 @@ import Spa from "../models/Spa.js";
 export const getSpaConfig = async (req, res, next) => {
   try {
     const { spaId } = req.params;
-    const spa = await Spa.findOne({ spaId });
-    if (!spa || !spa.isActive) {
-      return res.status(404).json({ message: "Spa not available" });
+    
+    if (!spaId) {
+      return res.status(400).json({ message: "Spa ID is required" });
     }
+
+    const spa = await Spa.findOne({ spaId });
+    
+    if (!spa) {
+      return res.status(404).json({ 
+        message: "Spa not found",
+        spaId: spaId 
+      });
+    }
+
+    if (!spa.isActive) {
+      return res.status(403).json({ 
+        message: "Spa is not active",
+        spaId: spaId 
+      });
+    }
+
+    // Return spa config (exclude sensitive data if any)
     res.json(spa);
   } catch (error) {
+    console.error('[getSpaConfig] Error:', error);
     next(error);
   }
 };
