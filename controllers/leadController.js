@@ -62,7 +62,7 @@ export const createLead = async (req, res, next) => {
     });
 
     spa.totalLeads += 1;
-    await spa.save();
+    await spa.save();                                
 
     res.status(201).json(lead);
   } catch (error) {
